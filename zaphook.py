@@ -5,11 +5,11 @@ import requests
 
 app=Flask(__name__)
 
-verify_token1=os.getenv('VERIFY_TOKEN')
+VERIFY_TOKEN=os.getenv('VERIFY_TOKEN')
 
-access_token=os.getenv('WHATSAPP_TOKEN')
+WHATSAPP_TOKEN=os.getenv('WHATSAPP_TOKEN')
 
-phone_number_id=os.getenv('PHONE_NUMBER_ID')
+PHONE_NUMBER_ID=os.getenv('PHONE_NUMBER_ID')
 
 if not all ([VERIFY_TOKEN, WHATSAPP_TOKEN, PHONE_NUMBER_ID]):
 
