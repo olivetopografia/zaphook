@@ -1,3 +1,4 @@
+#
 from flask import Flask, request
 import os
 import requests
@@ -17,7 +18,7 @@ if not all ([VERIFY_TOKEN, WHATSAPP_TOKEN, PHONE_NUMBER_ID]):
 
 	raise RuntimeError('Variáveis de ambientes não configuradas')
 
-def ZAP_TXT(phone, texto):
+def ZAP_TXT(phone,texto):
 
 	url=f'https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages'
 
