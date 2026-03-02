@@ -2,17 +2,27 @@
 from flask import Flask, request
 import os
 import requests
+from datetime import date
 
 
 app=Flask(__name__)
+
+processed_messages=set()
+
+current_date=date.today()
+
+set_date=date.today()
+
 
 VERIFY_TOKEN=os.getenv('VERIFY_TOKEN')
 
 WHATSAPP_TOKEN=os.getenv('WHATSAPP_TOKEN')
 
+ADMIN_PHONE=os.getenv('ADMIN_PHONE')
+
 PHONE_NUMBER_ID=os.getenv('PHONE_NUMBER_ID')
 
-if not all ([VERIFY_TOKEN, WHATSAPP_TOKEN, PHONE_NUMBER_ID]):
+if not all ([VERIFY_TOKEN, WHATSAPP_TOKEN, ADMIN_PHONE,PHONE_NUMBER_ID]):
 
 	print('')
 
@@ -40,7 +50,7 @@ def ZAP_TXT(phone,texto):
 
 @app.route('/zaphook', methods=['GET', 'POST'])
 
-def zaphook():
+def zaphook():	
 
 	if request.method=='GET':
 
@@ -60,6 +70,16 @@ def zaphook():
 
 	if request.method=='POST':
 
+		global processed_messages
+
+		global set_date	
+
+		if date.today()!=set_date:
+
+			processed_messages.clear()
+
+			set_date=date.today()		
+
 		data=request.json
 
 		print(data)
@@ -72,6 +92,13 @@ def zaphook():
 
 				mensagem=value['messages'][0]
 
+				message_id=mensagem['id']
+
+				if message_id in processed_messages:
+
+					return 'EVENT_RECEIVED', 200
+			
+
 				phone= mensagem['from']		
 				
 				print(f'Atividade detectada: {phone}')
@@ -82,7 +109,17 @@ def zaphook():
 
 				'https://api.whatsapp.com/send/?phone=5511973354380&text&type=phone_number&app_absent=0')
 
-				ZAP_TXT(phone, texto)
+				ZAP_TXT(phone, texto)				
+
+				if phone!=ADMIN_PHONE and mensagem['type']=='text':
+
+					body=mensagem['text']['body']
+
+					body=f'{phone}: \n{body}'
+
+					ZAP_TXT(ADMIN_PHONE, body)
+
+				processed_messages.add(message_id)
 				
 
 		except (KeyError, IndexError):
