@@ -46,7 +46,7 @@ def ZAP_TXT(phone,texto):
 
 	requests.post(url, json=payload, headers=headers)
 
-def AUDIO_ZAP(phone, media_id):
+def MEDIA_ZAP(phone, media_id, media_type):
 
 	url=f'https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages'
 
@@ -58,15 +58,15 @@ def AUDIO_ZAP(phone, media_id):
 
 		"to":phone,
 
-		"type":"audio",
+		"type":media_type,
 
-		"audio": {"id": media_id} }
+		media_type: {"id": media_id} }
 
 	response=requests.post(url, json=payload, headers=headers)
 
 	print('')
 
-	print("Status áudio:", response.status_code)
+	print("Status media:", response.status_code)
 
 	print('')
 
@@ -152,13 +152,17 @@ def zaphook():
 
 			ZAP_TXT(ADMIN_PHONE, body)			
 
-		if phone!=ADMIN_PHONE and mensagem['type']=='audio':
+		if phone!=ADMIN_PHONE and mensagem['type'] in ['audio', 'image', 'video', 'document']:
 
-			media_id=mensagem['audio']['id']
+			media_type=mensagem['type']
+
+			media_id=mensagem[media_type]['id']
+
+			
 
 			ZAP_TXT(ADMIN_PHONE, phone)
 
-			AUDIO_ZAP(ADMIN_PHONE, media_id)	
+			MEDIA_ZAP(ADMIN_PHONE, media_id, media_type)	
 		
 
 if __name__ == '__main__':
