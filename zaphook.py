@@ -22,7 +22,9 @@ ADMIN_PHONE=os.getenv('ADMIN_PHONE')
 
 PHONE_NUMBER_ID=os.getenv('PHONE_NUMBER_ID')
 
-if not all ([VERIFY_TOKEN, WHATSAPP_TOKEN, ADMIN_PHONE,PHONE_NUMBER_ID]):
+RESPOSTA_AUTOMATICA=os.getenv('RESPOSTA_AUTOMATICA')
+
+if not all ([VERIFY_TOKEN, WHATSAPP_TOKEN, ADMIN_PHONE,PHONE_NUMBER_ID, RESPOSTA_AUTOMATICA]):
 
 	print('')
 
@@ -142,7 +144,9 @@ def zaphook():
 
 		'https://api.whatsapp.com/send/?phone=5511973354380&text&type=phone_number&app_absent=0')
 
-		ZAP_TXT(phone, texto)				
+		if RESPOSTA_AUTOMATICA=='ativada':
+
+			ZAP_TXT(phone, texto)				
 
 		if phone!=ADMIN_PHONE and mensagem['type']=='text':
 
