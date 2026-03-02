@@ -66,7 +66,11 @@ def AUDIO_ZAP(phone, media_id):
 
 	print('')
 
-	print('Envio áudio status:', response.status_code)
+	print("Status áudio:", response.status_code)
+
+	print('')
+
+	print("Resposta:", response.text)
 
 
 
@@ -110,52 +114,52 @@ def zaphook():
 
 			value=data['entry'][0]['changes'][0]['value']
 
-			if 'messages' in value:
+		except (KeyError, IndexError, TypeError):
 
-				mensagem=value['messages'][0]
+			return 'EVENT_RECEIVED', 200
 
-				message_id=mensagem['id']
+		if 'messages' not in value:
 
-				if message_id in processed_messages:
+			return 'EVENT_RECEIVED', 200
 
-					return 'EVENT_RECEIVED', 200
+		mensagem=value['messages'][0]			
+
+		message_id=mensagem['id']
+
+		if message_id in processed_messages:
+
+			return 'EVENT_RECEIVED', 200
 			
-				processed_messages.add(message_id)			
+		processed_messages.add(message_id)			
 
-				phone= mensagem['from']		
+		phone= mensagem['from']		
 				
-				print(f'Atividade detectada: {phone}')
+		print(f'Atividade detectada: {phone}')
 
-				texto=('Olá, obrigado por usar o canal oficial da Olive Topografia.\n'
+		texto=('Olá, obrigado por usar o canal oficial da Olive Topografia.\n'
 
-				'Para atendimento clique no link abaixo: \n'
+		'Para atendimento clique no link abaixo: \n'
 
-				'https://api.whatsapp.com/send/?phone=5511973354380&text&type=phone_number&app_absent=0')
+		'https://api.whatsapp.com/send/?phone=5511973354380&text&type=phone_number&app_absent=0')
 
-				ZAP_TXT(phone, texto)				
+		ZAP_TXT(phone, texto)				
 
-				if phone!=ADMIN_PHONE and mensagem['type']=='text':
+		if phone!=ADMIN_PHONE and mensagem['type']=='text':
 
-					body=mensagem['text']['body']
+			body=mensagem['text']['body']
 
-					body=f'{phone}: \n{body}'
+			body=f'{phone}: \n{body}'
 
-					ZAP_TXT(ADMIN_PHONE, body)			
+			ZAP_TXT(ADMIN_PHONE, body)			
 
-				if phone!=ADMIN_PHONE and mensagem['type']=='audio':
+		if phone!=ADMIN_PHONE and mensagem['type']=='audio':
 
-					media_id=mensagem['audio']['id']
+			media_id=mensagem['audio']['id']
 
-					ZAP_TXT(ADMIN_PHONE, phone)
+			ZAP_TXT(ADMIN_PHONE, phone)
 
-					ZAP_AUDIO(ADMIN_PHONE, media_id)
-				
-
-		except (KeyError, IndexError):
-
-			pass
-
-		return 'EVENT_RECEIVED', 200
+			AUDIO_ZAP(ADMIN_PHONE, media_id)	
+		
 
 if __name__ == '__main__':
 
