@@ -46,6 +46,28 @@ def ZAP_TXT(phone,texto):
 
 	requests.post(url, json=payload, headers=headers)
 
+def AUDIO_ZAP(phone, media_id):
+
+	url=f'https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages'
+
+	headers={	'Authorization':f'Bearer {WHATSAPP_TOKEN}',
+
+		'Content-Type':'application/json' }
+
+	payload={ "messaging_product":"whatsapp",
+
+		"to":phone,
+
+		"type":"audio",
+
+		"audio": {"id": media_id} }
+
+	response=requests.post(url, json=payload, headers=headers)
+
+	print('')
+
+	print('Envio áudio status:', response.status_code)
+
 
 
 @app.route('/zaphook', methods=['GET', 'POST'])
@@ -98,6 +120,7 @@ def zaphook():
 
 					return 'EVENT_RECEIVED', 200
 			
+				processed_messages.add(message_id)			
 
 				phone= mensagem['from']		
 				
@@ -117,9 +140,15 @@ def zaphook():
 
 					body=f'{phone}: \n{body}'
 
-					ZAP_TXT(ADMIN_PHONE, body)
+					ZAP_TXT(ADMIN_PHONE, body)			
 
-				processed_messages.add(message_id)
+				if phone!=ADMIN_PHONE and mensagem['type']=='audio':
+
+					media_id=mensagem['audio']['id']
+
+					ZAP_TXT(ADMIN_PHONE, phone)
+
+					ZAP_AUDIO(ADMIN_PHONE, media_id)
 				
 
 		except (KeyError, IndexError):
