@@ -82,7 +82,7 @@ def zaphook():
 
 				'https://api.whatsapp.com/send/?phone=5511973354380&text&type=phone_number&app_absent=0')
 
-				ZAP_TXT(phone, texto)
+				#ZAP_TXT(phone, texto)
 				
 
 		except (KeyError, IndexError):
