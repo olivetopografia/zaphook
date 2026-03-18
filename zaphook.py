@@ -61,7 +61,7 @@ def ZAP_TXT(phone,texto):
 
 ###Envia mensagens de media para um determinado número
 
-def MEDIA_ZAP(phone, media_id, media_type):
+def MEDIA_ZAP(phone, media_id, media_type, filename):
 
 	url=f'https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages'
 
@@ -69,13 +69,19 @@ def MEDIA_ZAP(phone, media_id, media_type):
 
 		'Content-Type':'application/json' }
 
+	media_payload={'id': media_id}
+
+	if media_type=='document' and filename:
+
+		media_payload['filename']=filename
+
 	payload={ "messaging_product":"whatsapp",
 
 		"to":phone,
 
 		"type":media_type,
 
-		media_type: {"id": media_id} }
+		media_type: media_payload }
 
 	response=requests.post(url, json=payload, headers=headers)
 
@@ -195,13 +201,23 @@ def zaphook():
 
 		if phone!=ADMIN_PHONE and mensagem['type'] in ['audio', 'image', 'video', 'document']:
 
+			filename=None
+
 			media_type=mensagem['type']
 
-			media_id=mensagem[media_type]['id']			
+			media_id=mensagem[media_type]['id']
+
+			caption=mensagem[media_type].get('caption', '')
+
+			filename=mensagem[media_type].get('filename','')			
 
 			ZAP_TXT(ADMIN_PHONE, phone)
 
-			MEDIA_ZAP(ADMIN_PHONE, media_id, media_type)	
+			MEDIA_ZAP(ADMIN_PHONE, media_id, media_type, filename)
+
+			if caption!='':
+			
+				ZAP_TXT(ADMIN_PHONE, caption)	
 		
 
 if __name__ == '__main__':
